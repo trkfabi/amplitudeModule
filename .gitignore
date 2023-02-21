@@ -1,0 +1,12 @@
+ios/build
+ios/*.xcuserstate
+iOS/dist
+android/build
+android/libs
+android/example
+android/java-sources.txt
+android/build.properties
+Android/dist
+.DS_Store
+/android/.gradle
+/android/.idea

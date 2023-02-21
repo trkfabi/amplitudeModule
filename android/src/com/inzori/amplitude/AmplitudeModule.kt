@@ -22,12 +22,6 @@ import com.amplitude.android.Configuration
 
 @Kroll.module(name = "Amplitude", id = "com.inzori.amplitude")
 class AmplitudeModule: KrollModule() {
-
-	// NOTE: You can develop Titanium Android modules in Android Studio. Follow these three steps:
-	//   1. Build the empty module
-	//   2. Drag the "build" folder into Android Studio
-	//   3. Start developing! All dependencies and code completions are supported!
-
 	companion object {
 		// Standard Debugging variables
 		private const val LCAT = "AmplitudeModule"
@@ -44,12 +38,22 @@ class AmplitudeModule: KrollModule() {
 	}
 
 	private var amplitude: Amplitude? = null
+	private var doLog: Boolean = false
 	// Methods
 
 	@Kroll.method
 	fun initialize(params: KrollDict) {
-		Log.w(LCAT, "initialize() called")
+		
 		val apiKey = params.getString("apiKey")
+		doLog = params.optBoolean("doLog", false)
+
+		if (apiKey.isNullOrEmpty()) {
+			Log.e(LCAT, "API key is required")
+			return
+		}
+		
+		if (doLog) Log.w(LCAT, "initialize() apiKey: $apiKey")
+
 		amplitude = Amplitude(
 			Configuration(
 				apiKey = apiKey,
@@ -58,77 +62,42 @@ class AmplitudeModule: KrollModule() {
 		)
 	}
 	@Kroll.method
-	fun setUserId(params: KrollDict) {
-		Log.w(LCAT, "setUserId() called")
-		val userId = params.getString("userId")
+	fun logUserId(params: KrollDict) {
+		val userId = params.optString("userId", "")
+		if (doLog) Log.w(LCAT, "setUserId() userId: $userId")
+
 		amplitude?.setUserId(userId)
 	}
 	@Kroll.method
-	fun setDeviceId(params: KrollDict) {
-		Log.w(LCAT, "setDeviceId() called")
-		val deviceId = params.getString("deviceId")
+	fun logDeviceId(params: KrollDict) {
+		val deviceId = params.optString("deviceId", "")
+		if (doLog) Log.w(LCAT, "setDeviceId() deviceId: $deviceId")
 		amplitude?.setDeviceId(deviceId)
+
 	}
 	@Kroll.method
-	fun setUserProperties(params: KrollDict) {
-		Log.w(LCAT, "setDeviceId() called")
+	fun logUserProperties(params: KrollDict) {
+
 		val props = params.getKrollDict("props")
+		if (doLog) Log.w(LCAT, "setUserProperties() props: $props")
 		val identify = Identify()
 		props?.forEach { (key, value) -> identify.set(key, value) }
 		amplitude?.identify(identify)
+
 	}
 	@Kroll.method
 	fun logEvent(params: KrollDict) {
-		Log.w(LCAT, "logEvent() called")
-
 		val eventType = params.optString("eventType", "")
-		val props = params["props"] as? KrollDict
-		Log.w(LCAT, "logEvent() type: $eventType")
+		val props = params.getKrollDict("props")
+		if (doLog) Log.w(LCAT, "logEvent() type: $eventType props: $props")
 
-		val event = convertKrollDictToMutableMap(props)
-		//val event = mapOf("eventType" to eventType, "eventProperties" to props)
-		amplitude?.track(eventType, event)
+		amplitude?.track(eventType, props)
 	}
-	private fun convertKrollDictToMutableMap(krollDict: KrollDict?): MutableMap<String, Any?> {
-		if (krollDict != null) {
-			return krollDict.toMutableMap()
-		}
-		return mutableMapOf()
-	}
-
 
 	@Kroll.method
-	fun example(): String {
-		Log.d(LCAT, "example() called")
-		return "hello world"
+	fun reset() {
+		// shortcut to set userId and deviceId to null
+		if (doLog) Log.w(LCAT, "reset()")
+		amplitude?.reset()
 	}
-	
-	@Kroll.method
-	fun testMethod(params: KrollDict) {
-		Log.d(LCAT, "testMethod() called")
-
-		// Access the parameters passed as an Object, e.g. "myModule.testMethod({ name: 'John Doe', flag: true })"
-		val name = params.getString("name")
-		val flag = params.optBoolean("flag", false)
-
-		// Fire an event that can be added via "myModule.addEventListener('shown', ...)"
-		val event = KrollDict()
-		event["name"] = name
-		event["flag"] = flag
-
-		fireEvent("", event)
-	}
-
-	// Properties
-
-	@get:Kroll.getProperty
-	@set:Kroll.setProperty
-	var exampleProp: String
-		get() {
-			Log.d(LCAT, "get example property")
-			return "hello world"
-		}
-		set(value) {
-			Log.d(LCAT, "set example property: $value")
-		}
 }

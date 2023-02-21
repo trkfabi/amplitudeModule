@@ -26,7 +26,7 @@ import Amplitude_Swift
 @objc(ComInzoriAmplitudeModule)
 class ComInzoriAmplitudeModule: TiModule {
 
-  public let testProperty: String = "Hello World"
+  public var doLog: Bool = false
   
   func moduleGUID() -> String {
     return "178f5fc0-f47b-4a58-a81b-63547fa0c38b"
@@ -52,7 +52,7 @@ class ComInzoriAmplitudeModule: TiModule {
     func initialize(arguments: Array<Any>?) {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let apiKey = options["apiKey"] as? String ?? ""
-        
+        doLog = options["doLog"] as? Bool ?? false
         self.fireEvent("app:amplitude_log", with: ["method": "initialize", "apiKey": apiKey])
         amplitude = Amplitude(
           configuration: Configuration(
@@ -62,30 +62,32 @@ class ComInzoriAmplitudeModule: TiModule {
         )
     }
     
-    @objc(setUserId:)
-    func setUserId(arguments: Array<Any>?) {
+    @objc(logUserId:)
+    func logUserId(arguments: Array<Any>?) {
+    
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let userId = options["userId"] as? String ?? ""
         self.fireEvent("app:amplitude_log", with: ["method": "setUserId", "userId": userId])
         amplitude?.setUserId(userId: userId)
+    
     }
     
-    @objc(setDeviceId:)
-    func setDeviceId(arguments: Array<Any>?) {
+    @objc(logDeviceId:)
+    func logDeviceId(arguments: Array<Any>?) {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let deviceId = options["deviceId"] as? String ?? ""
         self.fireEvent("app:amplitude_log", with: ["method": "setDeviceId", "deviceId": deviceId])
         amplitude?.setDeviceId(deviceId: deviceId)
     }
     
-    @objc(setSessionId)
-    func setSessionId() {
+    @objc(logSessionId)
+    func logSessionId() {
         let timestamp = Int64(NSDate().timeIntervalSince1970 * 1000)
         amplitude?.setSessionId(sessionId: timestamp)
     }
 
-    @objc(setUserProperties:)
-    func setUserProperties(arguments: Array<Any>?) {
+    @objc(logUserProperties:)
+    func logUserProperties(arguments: Array<Any>?) {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let props = options["props"] as? [String: Any] ?? [:]
 
@@ -97,15 +99,15 @@ class ComInzoriAmplitudeModule: TiModule {
     }
     
     @objc(clearUserProperties)
-    func setUserProperties() {
+    func clearUserProperties() {
         let identify = Identify()
         identify.clearAll()
         amplitude?.identify(identify: identify)
     }
     
     @objc(logEvent:)
-    func logEvent(args: Array<Any>?) {
-        guard let args = args, let options = args[0] as? [String: Any] else { return }
+    func logEvent(arguments: Array<Any>?) {
+        guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let eventType = options["eventType"] as? String ?? ""
         let props = options["props"] as? [String: Any] ?? nil
 
@@ -130,5 +132,10 @@ class ComInzoriAmplitudeModule: TiModule {
 
         amplitude?.revenue(revenue: revenue)
 
+    }
+    
+    @objc(reset)
+    func reset() {
+        amplitude?.reset()
     }
 }

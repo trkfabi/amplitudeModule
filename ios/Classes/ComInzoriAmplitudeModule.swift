@@ -40,7 +40,7 @@ class ComInzoriAmplitudeModule: TiModule {
     super.startup()
     debugPrint("[DEBUG] \(self) loaded")
   }
-
+    
     var amplitude:Amplitude? = nil
 //    Amplitude(
 //      configuration: Configuration(
@@ -60,6 +60,9 @@ class ComInzoriAmplitudeModule: TiModule {
             trackingSessionEvents: true
           )
         )
+        if (doLog) {
+            amplitude?.logger?.logLevel = LogLevelEnum.DEBUG.rawValue
+        }
     }
     
     @objc(logUserId:)
@@ -80,8 +83,8 @@ class ComInzoriAmplitudeModule: TiModule {
         amplitude?.setDeviceId(deviceId: deviceId)
     }
     
-    @objc(logSessionId)
-    func logSessionId() {
+    @objc(logSessionId:)
+    func logSessionId(arguments: Array<Any>?) {
         let timestamp = Int64(NSDate().timeIntervalSince1970 * 1000)
         amplitude?.setSessionId(sessionId: timestamp)
     }
@@ -98,8 +101,8 @@ class ComInzoriAmplitudeModule: TiModule {
         amplitude?.identify(identify: identify)
     }
     
-    @objc(clearUserProperties)
-    func clearUserProperties() {
+    @objc(clearUserProperties:)
+    func clearUserProperties(arguments: Array<Any>?) {
         let identify = Identify()
         identify.clearAll()
         amplitude?.identify(identify: identify)
@@ -134,8 +137,8 @@ class ComInzoriAmplitudeModule: TiModule {
 
     }
     
-    @objc(reset)
-    func reset() {
+    @objc(reset:)
+    func reset(arguments: Array<Any>?) {
         amplitude?.reset()
     }
 }

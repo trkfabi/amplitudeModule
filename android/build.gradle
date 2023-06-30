@@ -3,5 +3,5 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation 'com.amplitude:analytics-android:1.+'
+  implementation 'com.amplitude:analytics-android:1.9.1'
 }

@@ -85,8 +85,8 @@ class ComInzoriAmplitudeModule: TiModule {
     
     @objc(logSessionId:)
     func logSessionId(arguments: Array<Any>?) {
-        let timestamp = Int64(NSDate().timeIntervalSince1970 * 1000)
-        amplitude?.setSessionId(sessionId: timestamp)
+        //let timestamp = Int64(NSDate().timeIntervalSince1970 * 1000)
+        //amplitude?.setSessionId(sessionId: timestamp)
     }
 
     @objc(logUserProperties:)

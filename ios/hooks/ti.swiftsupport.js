@@ -31,6 +31,8 @@ function init(logger, config, cli, appc) {
 					xobjs.XCConfigurationList[target.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 						var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 						buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = 'YES';
+						
+						buildSettings.OTHER_SWIFT_FLAGS = 'no-verify-emitted-module-interface';
 					});
 				}
 			});

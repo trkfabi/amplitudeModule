@@ -9,16 +9,22 @@
 
 package com.inzori.amplitude
 
-import org.appcelerator.kroll.KrollModule
+import androidx.lifecycle.MutableLiveData
+import com.amplitude.android.Amplitude
+import com.amplitude.android.Configuration
+import com.amplitude.core.events.Identify
+import com.amplitude.experiment.Experiment
+import com.amplitude.experiment.ExperimentClient
+import com.amplitude.experiment.ExperimentConfig
+import com.amplitude.experiment.ExperimentUser.Companion.builder
+import com.amplitude.experiment.Variant
 import org.appcelerator.kroll.KrollDict
+import org.appcelerator.kroll.KrollModule
 import org.appcelerator.kroll.annotations.Kroll
 import org.appcelerator.kroll.common.Log
 import org.appcelerator.kroll.common.TiConfig
 import org.appcelerator.titanium.TiApplication
 
-import com.amplitude.core.events.Identify
-import com.amplitude.android.Amplitude
-import com.amplitude.android.Configuration
 
 @Kroll.module(name = "Amplitude", id = "com.inzori.amplitude")
 class AmplitudeModule: KrollModule() {
@@ -26,7 +32,7 @@ class AmplitudeModule: KrollModule() {
 		// Standard Debugging variables
 		private const val LCAT = "AmplitudeModule"
 		private val DBG = TiConfig.LOGD
-		
+
 		// You can define constants with @Kroll.constant, for example:
 		// @Kroll.constant private val EXTERNAL_NAME = "EXTERNAL_NAME"
 
@@ -39,12 +45,16 @@ class AmplitudeModule: KrollModule() {
 
 	private var amplitude: Amplitude? = null
 	private var doLog: Boolean = false
+	private var client: ExperimentClient? = null
+	private val mVariant: MutableLiveData<Variant>? = null
+
 	// Methods
 
 	@Kroll.method
 	fun initialize(params: KrollDict) {
 		
 		val apiKey = params.getString("apiKey")
+		var experimentApiKey = params.getString("experimentApiKey")
 		doLog = params.optBoolean("doLog", false)
 
 		if (apiKey.isNullOrEmpty()) {
@@ -60,14 +70,80 @@ class AmplitudeModule: KrollModule() {
 				context = TiApplication.getInstance().getApplicationContext()
 			)
 		)
+
+		if (experimentApiKey.isNullOrEmpty()) {
+			Log.e(LCAT, "experimentApiKey is required to initialize Experiments")
+			return
+		}
+
+		// (1) Initialize the experiment client
+		//val config = ExperimentConfig()
+		val config = ExperimentConfig.builder()
+			.debug(doLog)
+			.build()
+		client = Experiment.initialize(TiApplication.getInstance(), experimentApiKey, config)
+
+		if (doLog) Log.w(LCAT, "Experiment initialize() client: ${client.toString()}")
 	}
+
 	@Kroll.method
 	fun logUserId(params: KrollDict) {
 		val userId = params.optString("userId", "")
 		if (doLog) Log.w(LCAT, "setUserId() userId: $userId")
 
 		amplitude?.setUserId(userId)
+
+		// (2) Fetch variants for a user
+		val user = builder()
+			.userId(userId)
+			.build()
+		try {
+			client!!.fetch(user).get()
+			if (doLog) Log.w(LCAT, "Experiment fetch() client")
+
+			var obj = arrayOfNulls<Any>(client!!.all().toList().size)
+			client!!.all().forEach { entry ->
+				if (doLog) Log.w(LCAT, "${entry.key} : ${entry.value.value}")
+
+				val model = KrollDict()
+				model["key"] = entry.key
+				model["value"] = entry.value.value
+
+				obj += model
+			}
+
+
+			// fire event back to Ti app
+			val props = KrollDict()
+			props["success"] = true
+			props["list"] = obj
+			fireEvent("fluid:fetchedVariants", props)
+
+
+		} catch (e: Exception) {
+			e.printStackTrace()
+			if (doLog) Log.w(LCAT, "Experiment fetch() error: ${e.printStackTrace()}")
+		}
 	}
+
+	@Kroll.method
+	fun lookUpVariant(params: KrollDict) {
+
+		val flag = params.optString("flag", "")
+		// (3) Lookup a flag's variant
+		val variant = client!!.variant(flag)
+
+		if (doLog) Log.w(LCAT, "lookUpVariant() flag $flag - value: ${variant.value}")
+
+		// fire event back to Ti app
+		val props = KrollDict()
+		props["success"] = true
+		props["key"] = flag
+		props["value"] = variant?.value
+		fireEvent("fluid:lookUpVariant", props)
+
+	}
+
 	@Kroll.method
 	fun logDeviceId(params: KrollDict) {
 		val deviceId = params.optString("deviceId", "")

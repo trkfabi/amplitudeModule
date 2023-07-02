@@ -6,7 +6,25 @@
       "location" : "https://github.com/amplitude/Amplitude-Swift",
       "state" : {
         "branch" : "main",
-        "revision" : "c71dd4400e0522004023551aaf77fcf983466670"
+        "revision" : "68ff3ced70e15983b202bcd7c2edca388c22621c"
+      }
+    },
+    {
+      "identity" : "analytics-connector-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/analytics-connector-ios.git",
+      "state" : {
+        "revision" : "d3d682a26ca6f4947ece2c2e627971bb41b940fa",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "experiment-ios-client",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/experiment-ios-client",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e2909462c1f4be3df5b3d27ca535f6500ef5f101"
       }
     }
   ],

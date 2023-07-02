@@ -81,7 +81,7 @@ class AmplitudeModule: KrollModule() {
 		val config = ExperimentConfig.builder()
 			.debug(doLog)
 			.build()
-		client = Experiment.initialize(TiApplication.getInstance(), experimentApiKey, config)
+		client = Experiment.initializeWithAmplitudeAnalytics(TiApplication.getInstance(), experimentApiKey, config)
 
 		if (doLog) Log.w(LCAT, "Experiment initialize() client: ${client.toString()}")
 	}
@@ -94,11 +94,12 @@ class AmplitudeModule: KrollModule() {
 		amplitude?.setUserId(userId)
 
 		// (2) Fetch variants for a user
-		val user = builder()
-			.userId(userId)
-			.build()
+		// we don't need the user as we're integrating with analytics
+//		val user = builder()
+//			.userId(userId)
+//			.build()
 		try {
-			client!!.fetch(user).get()
+			client!!.fetch().get()
 			if (doLog) Log.w(LCAT, "Experiment fetch() client")
 
 			var obj = arrayOfNulls<Any>(client!!.all().toList().size)
@@ -125,9 +126,13 @@ class AmplitudeModule: KrollModule() {
 			if (doLog) Log.w(LCAT, "Experiment fetch() error: ${e.printStackTrace()}")
 		}
 	}
+	@Kroll.method
+	fun clearExperiment(params: KrollDict) {
+		client!!.clear()
+	}
 
 	@Kroll.method
-	fun lookUpVariant(params: KrollDict) {
+	fun lookUpVariant(params: KrollDict): String? {
 
 		val flag = params.optString("flag", "")
 		// (3) Lookup a flag's variant
@@ -135,12 +140,16 @@ class AmplitudeModule: KrollModule() {
 
 		if (doLog) Log.w(LCAT, "lookUpVariant() flag $flag - value: ${variant.value}")
 
+		client!!.exposure(flag)
+
 		// fire event back to Ti app
 		val props = KrollDict()
 		props["success"] = true
 		props["key"] = flag
 		props["value"] = variant?.value
 		fireEvent("fluid:lookUpVariant", props)
+
+		return variant?.value
 
 	}
 

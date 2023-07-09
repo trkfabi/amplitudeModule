@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		052ACF2C29A502AD009E7AC1 /* Amplitude-Swift in Frameworks */ = {isa = PBXBuildFile; productRef = 052ACF2B29A502AD009E7AC1 /* Amplitude-Swift */; };
 		054E0B7F2A5030630039FADF /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 054E0B7E2A5030630039FADF /* Experiment */; };
+		05ABE5B72A5B2D2400357664 /* Amplitude in Frameworks */ = {isa = PBXBuildFile; productRef = 05ABE5B62A5B2D2400357664 /* Amplitude */; };
 		B1E00E65241D179500C384C1 /* TitaniumKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1E00E64241D179500C384C1 /* TitaniumKit.xcframework */; };
 		DB24E03C20766AC90033B2B1 /* ComInzoriAmplitudeExampleProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB24E03B20766AC90033B2B1 /* ComInzoriAmplitudeExampleProxy.swift */; };
 		DB34CDE0207B998A005F8E8C /* ComInzoriAmplitudeModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = DB34CDDE207B998A005F8E8C /* ComInzoriAmplitudeModuleAssets.m */; };
@@ -38,9 +38,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				052ACF2C29A502AD009E7AC1 /* Amplitude-Swift in Frameworks */,
 				DB34CDE6207B9EBD005F8E8C /* Foundation.framework in Frameworks */,
 				B1E00E65241D179500C384C1 /* TitaniumKit.xcframework in Frameworks */,
+				05ABE5B72A5B2D2400357664 /* Amplitude in Frameworks */,
 				054E0B7F2A5030630039FADF /* Experiment in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -137,8 +137,8 @@
 			);
 			name = ComInzoriAmplitude;
 			packageProductDependencies = (
-				052ACF2B29A502AD009E7AC1 /* Amplitude-Swift */,
 				054E0B7E2A5030630039FADF /* Experiment */,
+				05ABE5B62A5B2D2400357664 /* Amplitude */,
 			);
 			productName = ComInzoriAmplitude;
 			productReference = DB52E22A1E9CCD7000AAAEE0 /* ComInzoriAmplitude.framework */;
@@ -169,8 +169,8 @@
 			);
 			mainGroup = DB52E2201E9CCD7000AAAEE0;
 			packageReferences = (
-				052ACF2A29A502AD009E7AC1 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */,
 				054E0B7D2A5030630039FADF /* XCRemoteSwiftPackageReference "experiment-ios-client" */,
+				05ABE5B52A5B2D2400357664 /* XCRemoteSwiftPackageReference "Amplitude-iOS" */,
 			);
 			productRefGroup = DB52E22B1E9CCD7000AAAEE0 /* Products */;
 			projectDirPath = "";
@@ -469,34 +469,34 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		052ACF2A29A502AD009E7AC1 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		054E0B7D2A5030630039FADF /* XCRemoteSwiftPackageReference "experiment-ios-client" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/amplitude/experiment-ios-client";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 1.11.0;
+			};
+		};
+		05ABE5B52A5B2D2400357664 /* XCRemoteSwiftPackageReference "Amplitude-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/amplitude/Amplitude-iOS";
+			requirement = {
+				kind = exactVersion;
+				version = 8.17.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		052ACF2B29A502AD009E7AC1 /* Amplitude-Swift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 052ACF2A29A502AD009E7AC1 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */;
-			productName = "Amplitude-Swift";
-		};
 		054E0B7E2A5030630039FADF /* Experiment */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 054E0B7D2A5030630039FADF /* XCRemoteSwiftPackageReference "experiment-ios-client" */;
 			productName = Experiment;
+		};
+		05ABE5B62A5B2D2400357664 /* Amplitude */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05ABE5B52A5B2D2400357664 /* XCRemoteSwiftPackageReference "Amplitude-iOS" */;
+			productName = Amplitude;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

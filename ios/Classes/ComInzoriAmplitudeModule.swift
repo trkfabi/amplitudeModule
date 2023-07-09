@@ -89,27 +89,30 @@ class ComInzoriAmplitudeModule: TiModule {
     
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let userId = options["userId"] as? String ?? ""
-        self.fireEvent("app:amplitude_log", with: ["method": "setUserId", "userId": userId])
+        self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "userId": userId])
         Amplitude.instance().setUserId(userId)
         
         // we don't need the user as we're integrating with analytics
-//        let user = ExperimentUserBuilder()
-//            .userId(userId )
-//            .build()
+        let user = ExperimentUserBuilder()
+            .userId(userId )
+            .build()
         
-//        client!.fetch(user: user) { experiment, error in
-//
-//            // (3) Lookup a flag's variant
-//            let variant = experiment.variant("a-a-test")
-//            self.fireEvent("app:amplitude_log", with: ["method": "setUserId", "fetchedVariant": variant.value!])
-//
-//        }
+        client!.fetch(user: user) { experiment, error in
+
+            // (3) Lookup a flag's variant
+//            experiment.all().forEach({ v in
+//                self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "variant": v.key, "value": v.value])
+//            })
+            //let variant = experiment.variant("a-a-test")
+            //self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "fetchedVariant": variant.value!])
+
+        }
         
         // (2) Fetch variants for a user
-        client!.fetch(user: nil, completion: nil)
-        client?.all().forEach({ v in
-            self.fireEvent("app:amplitude_log", with: ["method": "setUserId", "variant": v.key, "value": v.value])
-        })
+//        client!.fetch(user: nil, completion: nil)
+//        client?.all().forEach({ v in
+//            self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "variant": v.key, "value": v.value])
+//        })
 
     }
     

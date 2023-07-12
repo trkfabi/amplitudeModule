@@ -27,25 +27,23 @@ import Experiment
 @objc(ComInzoriAmplitudeModule)
 class ComInzoriAmplitudeModule: TiModule {
 
-  public var doLog: Bool = false
-  
-  func moduleGUID() -> String {
-    return "178f5fc0-f47b-4a58-a81b-63547fa0c38b"
-  }
-  
-  override func moduleId() -> String! {
-    return "com.inzori.amplitude"
-  }
+    public var doLog: Bool = false
 
-  override func startup() {
-    super.startup()
-    debugPrint("[DEBUG] \(self) loaded")
-  }
+    func moduleGUID() -> String {
+        return "178f5fc0-f47b-4a58-a81b-63547fa0c38b"
+    }
+
+    override func moduleId() -> String! {
+        return "com.inzori.amplitude"
+    }
+
+    override func startup() {
+        super.startup()
+        debugPrint("[DEBUG] \(self) loaded")
+    }
     
-    //var amplitude:Amplitude? = nil
     var client:ExperimentClient? = nil
 
-    
     @objc(initialize:)
     func initialize(arguments: Array<Any>?) {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
@@ -53,18 +51,8 @@ class ComInzoriAmplitudeModule: TiModule {
         let experimentApiKey = options["experimentApiKey"] as? String ?? ""
         doLog = options["doLog"] as? Bool ?? false
         self.fireEvent("app:amplitude_log", with: ["method": "initialize", "apiKey": apiKey, "experimentApiKey": experimentApiKey])
-        
-        
-//        amplitude = Amplitude(
-//          configuration: Configuration(
-//            apiKey: apiKey,
-//            trackingSessionEvents: true
-//          )
-//        )
-        
         Amplitude.instance().defaultTracking.sessions = true
         Amplitude.instance().initializeApiKey(apiKey);
-        
         
         if (doLog) {
             //amplitude?.logger?.logLevel = LogLevelEnum.DEBUG.rawValue
@@ -92,28 +80,13 @@ class ComInzoriAmplitudeModule: TiModule {
         self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "userId": userId])
         Amplitude.instance().setUserId(userId)
         
-        // we don't need the user as we're integrating with analytics
         let user = ExperimentUserBuilder()
             .userId(userId )
             .build()
         
         client!.fetch(user: user) { experiment, error in
 
-            // (3) Lookup a flag's variant
-//            experiment.all().forEach({ v in
-//                self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "variant": v.key, "value": v.value])
-//            })
-            //let variant = experiment.variant("a-a-test")
-            //self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "fetchedVariant": variant.value!])
-
         }
-        
-        // (2) Fetch variants for a user
-//        client!.fetch(user: nil, completion: nil)
-//        client?.all().forEach({ v in
-//            self.fireEvent("app:amplitude_log", with: ["method": "logUserId", "variant": v.key, "value": v.value])
-//        })
-
     }
     
     @objc(lookUpVariant:)
@@ -121,11 +94,7 @@ class ComInzoriAmplitudeModule: TiModule {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return ""}
         let flag = options["flag"] as? String ?? ""
         
-        self.fireEvent("app:amplitude_log", with: ["method": "lookUpVariant", "flag": flag])
-        
         let variant = client!.variant(flag)
-        self.fireEvent("app:amplitude_log", with: ["method": "lookUpVariant", "value": variant.value ?? ""])
-        
         client!.exposure(key: flag)
         
         return variant.value ?? ""
@@ -136,14 +105,12 @@ class ComInzoriAmplitudeModule: TiModule {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let deviceId = options["deviceId"] as? String ?? ""
         self.fireEvent("app:amplitude_log", with: ["method": "setDeviceId", "deviceId": deviceId])
-        //amplitude?.setDeviceId(deviceId: deviceId)
         Amplitude.instance().setDeviceId(deviceId)
     }
     
     @objc(logSessionId:)
     func logSessionId(arguments: Array<Any>?) {
         let timestamp = Int64(NSDate().timeIntervalSince1970 * 1000)
-        //amplitude?.setSessionId(sessionId: timestamp)
         Amplitude.instance().setSessionId(timestamp)
     }
 
@@ -151,13 +118,7 @@ class ComInzoriAmplitudeModule: TiModule {
     func logUserProperties(arguments: Array<Any>?) {
         guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return }
         let props = options["props"] as? [String: Any] ?? [:]
-//
-//        let identify = Identify()
-//        for (key, value) in props {
-//            identify.set(property: key, value: value)
-//        }
-//        amplitude?.identify(identify: identify)
-//
+
         let identify = AMPIdentify()
         for (key, value) in props {
             identify.set(key, value: (value as! NSObject))
@@ -167,9 +128,6 @@ class ComInzoriAmplitudeModule: TiModule {
     
     @objc(clearUserProperties:)
     func clearUserProperties(arguments: Array<Any>?) {
-//        let identify = Identify()
-//        identify.clearAll()
-//        amplitude?.identify(identify: identify)
         Amplitude.instance().clearUserProperties()
     }
     
@@ -179,13 +137,8 @@ class ComInzoriAmplitudeModule: TiModule {
         let eventType = options["eventType"] as? String ?? ""
         let props = options["props"] as? [String: Any] ?? nil
 
-//        let event = BaseEvent(
-//          eventType: eventType,
-//          eventProperties: props
-//        )
         Amplitude.instance().logEvent(eventType, withEventProperties: props )
 
-//        Amplitude.instance().logEvent(event)
     }
 
     @objc(logRevenue:)
@@ -195,24 +148,15 @@ class ComInzoriAmplitudeModule: TiModule {
         let price = options["price"] as? Double ?? 0
         let quantity = options["quantity"] as? Int ?? 0
 
-//        let revenue = Revenue()
-//        revenue.productId = productId
-//        revenue.quantity = quantity
-//        revenue.price = price
-//
-//        amplitude?.revenue(revenue: revenue)
-//
         let revenue = AMPRevenue()
         revenue.setProductIdentifier(productId)
         revenue.setQuantity(quantity)
         revenue.setPrice(NSNumber(value: price))
         Amplitude.instance().logRevenueV2(revenue)
-
     }
     
     @objc(reset:)
     func reset(arguments: Array<Any>?) {
-        //amplitude?.reset()
         Amplitude.instance().clearUserProperties()
     }
     

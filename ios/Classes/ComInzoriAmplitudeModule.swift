@@ -24,6 +24,7 @@ import Experiment
  
  */
 
+
 @objc(ComInzoriAmplitudeModule)
 class ComInzoriAmplitudeModule: TiModule {
 
@@ -96,8 +97,30 @@ class ComInzoriAmplitudeModule: TiModule {
         
         let variant = client!.variant(flag)
         client!.exposure(key: flag)
-        
+
         return variant.value ?? ""
+    }
+    
+    @objc(lookUpFlag:)
+    func lookUpFlag(arguments: Array<Any>?) -> Dictionary<String,String> {
+        guard let arguments = arguments, let options = arguments[0] as? [String: Any] else { return ["value":"", "payload":""]}
+        let flag = options["flag"] as? String ?? ""
+        
+        let variant = client!.variant(flag)
+        client!.exposure(key: flag)
+        var payload = ""
+        if ((variant.payload) != nil) {
+            payload = json(from:variant.payload as Any)
+        }
+        return ["value":variant.value ?? "", "payload":payload]
+
+    }
+
+    func json(from object:Any) -> String {
+        guard let data = try? JSONSerialization.data(withJSONObject: object, options: []) else {
+            return ""
+        }
+        return String(data: data, encoding: String.Encoding.utf8)!
     }
     
     @objc(logDeviceId:)

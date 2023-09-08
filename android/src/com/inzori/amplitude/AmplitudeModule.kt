@@ -24,6 +24,7 @@ import org.appcelerator.kroll.annotations.Kroll
 import org.appcelerator.kroll.common.Log
 import org.appcelerator.kroll.common.TiConfig
 import org.appcelerator.titanium.TiApplication
+import org.json.JSONObject
 
 
 @Kroll.module(name = "Amplitude", id = "com.inzori.amplitude")
@@ -150,6 +151,36 @@ class AmplitudeModule: KrollModule() {
 		fireEvent("fluid:lookUpVariant", props)
 
 		return variant?.value
+
+	}
+
+	@Kroll.method
+	fun lookUpFlag(params: KrollDict): KrollDict {
+
+		val flag = params.optString("flag", "")
+		// (3) Lookup a flag's variant
+		val variant = client!!.variant(flag)
+
+		if (doLog) Log.w(LCAT, "lookUpFlag() flag $flag: $variant")
+
+		client!!.exposure(flag)
+
+		// fire event back to Ti app
+		val props = KrollDict()
+		props["success"] = true
+		props["key"] = flag
+		props["value"] = variant?.value
+		var value = JSONObject()
+
+		try {
+			value = (variant?.payload as JSONObject)
+		} catch (e: Exception) {
+
+		}
+		props["payload"] = value.toString()
+
+		fireEvent("fluid:lookUpVariant", props)
+		return props
 
 	}
 

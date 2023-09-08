@@ -3,6 +3,6 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation 'com.amplitude:analytics-android:1.9.1'
+  implementation 'com.amplitude:analytics-android:1.10.2'
   implementation 'com.amplitude:experiment-android-client:1.10.0'
 }
